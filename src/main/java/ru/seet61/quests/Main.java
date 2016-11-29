@@ -9,7 +9,7 @@ import java.io.Console;
  */
 public class Main {
     public static void main(String[] args) {
-        String string = null;
+        String string = null; 
 
         //Подключаемся к консоли.
         Console c = System.console();

@@ -6,9 +6,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Класс реализует логику работы с выражениями зависимостей квестов.
  * Created by seet61 on 29.11.2016.
  */
 public class Quests {
+    /**
+     * Проверяем передаваемую строку с квестами
+     *
+     * @param string
+     * @return String "true", "fasle" или "error"
+     */
     public String checkQuests (String string) {
         //удаляем пробелы
         string = string.replaceAll(" ", "");
@@ -17,7 +24,6 @@ public class Quests {
         if (flag == true) {
             //Синтаксис корректный
             boolean logic = checkLogic(string);
-            System.out.println("logic: " + logic);
             return String.valueOf(true ? logic : false);
         }
         else {
@@ -26,6 +32,11 @@ public class Quests {
         }
     }
 
+    /**
+     * Разбиение строки на выражения, вызов метода расчета выражения и вычисление конечного результата.
+     * @param string
+     * @return boolean
+     */
     private boolean checkLogic(String string) {
         boolean result=false;
         String sym = "";
@@ -33,12 +44,9 @@ public class Quests {
         Pattern patterntBracketsSymbol = Pattern.compile("\\).\\(");
         List<String> values = new ArrayList<String>();
 
-        System.out.println("string: " + string);
         //Получаем выражение для анализа между скобок
-
         Matcher m = patternLogic.matcher(string);
         while (m.find()) {
-            System.out.println("subs: " + m.start() + " " + m.end());
             if (m.start() != m.end()) {
                 String substring = string.substring(m.start()+1, m.end()-1);
                 values.add(string.substring(m.start()+1, m.end()-1));
@@ -49,16 +57,13 @@ public class Quests {
         Matcher m2 = patterntBracketsSymbol.matcher(string);
         while (m2.find()) {
             sym = string.substring(m2.start()+1, m2.end()-1);
-            System.out.println("sym: " + sym);
             values.add(sym);
             result=true ? sym.charAt(0) == '&' : false;
 
         }
 
         if (values.size()>1) {
-            System.out.println("more logic");
             for (int i=0; i< values.size(); i += 3) {
-                System.out.println("xxxx: " + values.get(i) + values.get(i+2) + values.get(i+1));
                 if (values.get(i+2).charAt(0) == '&')
                     result &= (true ? calculate(values.get(i)) : false) && (true ? calculate(values.get(i+1)) : false);
                 else if (values.get(i+2).charAt(0) == '|')
@@ -67,16 +72,17 @@ public class Quests {
 
         }
         else {
-            System.out.println("one logic");
             result = calculate(values.get(0));
         }
-
-        System.out.println("result: " + result);
         return result;
     }
 
+    /**
+     * Вычисление конкретного выражения.
+     * @param s
+     * @return boolean
+     */
     private boolean calculate(String s) {
-        System.out.println("xstring: " + s);
         boolean res = false;
         char symbol = 'X';
         Pattern pattern = Pattern.compile("[&|]");
@@ -84,16 +90,13 @@ public class Quests {
         Matcher m = pattern.matcher(s);
         while (m.find()) {
             symbol = s.charAt(m.start());
-            System.out.println("ls: " + symbol);
             res=true ? symbol == '&' : false;
         }
 
         //Вычисляем
         String[] vals = pattern.split(s);
-        System.out.println("l: " + vals.length );
         if (vals.length > 1) {
             for (String v: vals) {
-                System.out.println(v);
                 if (symbol == '&')
                     res = res && (v.charAt(0) != '!' || false);
                 else if (symbol == '|')
@@ -101,15 +104,18 @@ public class Quests {
             }
         }
         else {
-            System.out.println(s.charAt(0) != '!' || false);
             res = s.charAt(0) != '!' || false;
         }
 
-        System.out.println("res: "  + res);
         return res;
     }
 
-
+    /**
+     * Проверка синтаксиса выражения.
+     * В случае ошибки возвращается "false" и в обработчике меняется на "error"
+     * @param string
+     * @return boolean
+     */
     private boolean checkSyntax(String string) {
         int left = 0;
         int right = 0;
